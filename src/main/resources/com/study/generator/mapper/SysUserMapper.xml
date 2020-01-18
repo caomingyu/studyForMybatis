@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.study.generator.mapper.SysUserMapper">
+    <cache readOnly="false"/>
     <resultMap id="BaseResultMap" type="com.study.generator.model.SysUser">
         <!--
           WARNING - @mbg.generated
@@ -14,6 +15,7 @@
         <result column="user_info" jdbcType="LONGVARCHAR" property="userInfo"/>
         <result column="head_img" jdbcType="LONGVARBINARY" property="headImg"/>
     </resultMap>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         <!--
           WARNING - @mbg.generated
@@ -92,5 +94,35 @@
                  left join sys_role sr on sur.role_id = sr.id
                  left join sys_role_privilege srp on sr.id = srp.role_id
                  left join sys_privilege sp on srp.privilege_id = sp.id
+    </select>
+
+    <resultMap id="sysUserByIdMap" type="com.study.generator.model.SysUser" extends="BaseResultMap">
+        <collection property="roleList" select="com.study.generator.mapper.SysRoleMapper.selectRoleByUid"
+                    fetchType="lazy" column="{id=id}"/>
+    </resultMap>
+    <select id="selectAllById" resultMap="sysUserByIdMap">
+        select *
+        from sys_user;
+    </select>
+    <select id="selectOneById" statementType="CALLABLE" useCache="false">
+        {call select_user_by_id(
+            #{id,mode=IN},
+            #{userName,mode=OUT,jdbcType=VARCHAR},
+            #{userPassword,mode=OUT,jdbcType=VARCHAR},
+            #{userEmial,mode=OUT,jdbcType=VARCHAR},
+            #{userInfo,mode=OUT,jdbcType=VARCHAR},
+            #{headImg,mode=OUT,jdbcType=BLOB},
+            #{createTime,mode=OUT,jdbcType=TIMESTAMP}enabled
+            )}
+    </select>
+    <select id="selectByPage" statementType="CALLABLE" useCache="false" resultMap="BaseResultMap">
+        {
+            call select_user_page(
+                #{userName,mode=IN},
+                #{_offset,mode=IN},
+                #{_limit,mode=IN},
+                #{sum,mode=OUT,jdbcType=BIGINT}
+            )
+        }
     </select>
 </mapper>

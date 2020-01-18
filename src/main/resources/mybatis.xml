@@ -9,6 +9,14 @@
     <typeAliases>
         <package name="com.study.mybatis.model"/>
     </typeAliases>
+    <typeHandlers>
+        <typeHandler javaType="com.study.generator.model.Enabled" handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>
+    </typeHandlers>
+    <plugins>
+        <plugin interceptor="com.study.generator.interceptor.TestInterceptor">
+            <property name="test" value="cmy-test"/>
+        </plugin>
+    </plugins>
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>

@@ -43,4 +43,6 @@ public interface SysPrivilegeMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(SysPrivilege record);
+
+    SysPrivilege selectPrivilegeByRid(Long id);
 }

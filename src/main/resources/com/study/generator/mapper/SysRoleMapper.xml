@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.study.generator.mapper.SysRoleMapper">
+  <cache-ref namespace="com.study.generator.mapper.SysUserMapper"/>
   <resultMap id="BaseResultMap" type="com.study.generator.model.SysRole">
     <!--
       WARNING - @mbg.generated
@@ -9,12 +10,37 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="role_name" jdbcType="VARCHAR" property="roleName" />
     <result column="enabled" jdbcType="INTEGER" property="enabled" />
-    <result column="create_by" jdbcType="BIGINT" property="createBy" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+<!--    <result column="create_by" jdbcType="BIGINT" property="createBy" />-->
+<!--    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />-->
+    <association property="createInfo" javaType="com.study.generator.model.CreateInfo">
+      <result property="createBy" column="create_by"/>
+      <result property="createTime" column="create_time"/>
+    </association>
   </resultMap>
   <resultMap id="roleWithPrivilege" type="com.study.generator.model.SysRole" extends="BaseResultMap">
     <collection property="sysPrivilegeList" columnPrefix="privilege_" resultMap="com.study.generator.mapper.SysPrivilegeMapper.BaseResultMap"/>
   </resultMap>
+  <resultMap id="roleWithPrivilegeBySql" type="com.study.generator.model.SysRole" extends="BaseResultMap">
+    <collection property="sysPrivilegeList" select="com.study.generator.mapper.SysPrivilegeMapper.selectPrivilegeByRid"
+    fetchType="lazy" column="{id=id}"/>
+  </resultMap>
+  <resultMap id="roleWithEnable" type="com.study.generator.model.SysRole">
+    <discriminator column="enabled" javaType="int">
+      <case value="1" resultMap="roleWithPrivilegeBySql"/>
+      <case value="0" resultType="com.study.generator.model.SysRole">
+        <id column="id" property="id"/>
+        <result property="roleName" column="role_name"/>
+      </case>
+    </discriminator>
+  </resultMap>
+  <select id="selectWithPrivilege" resultMap="roleWithPrivilegeBySql">
+select * from sys_role where id=#{id};
+  </select>
+  <select id="selectRoleByUid" resultMap="roleWithEnable">
+    select * from sys_role sr
+    left join sys_user_role sur on sr.id=sur.role_id
+    where sur.user_id=#{id}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     <!--
       WARNING - @mbg.generated
@@ -31,9 +57,9 @@
     <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into sys_role (id, role_name, enabled, 
+    insert into sys_role (id, role_name, enabled,
       create_by, create_time)
-    values (#{id,jdbcType=BIGINT}, #{roleName,jdbcType=VARCHAR}, #{enabled,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{roleName,jdbcType=VARCHAR}, #{enabled,jdbcType=INTEGER},
       #{createBy,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.study.generator.model.SysRole">
@@ -44,8 +70,8 @@
     update sys_role
     set role_name = #{roleName,jdbcType=VARCHAR},
       enabled = #{enabled,jdbcType=INTEGER},
-      create_by = #{createBy,jdbcType=BIGINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+      create_by = #{createInfo.createBy,jdbcType=BIGINT},
+      create_time = #{createInfo.createTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">

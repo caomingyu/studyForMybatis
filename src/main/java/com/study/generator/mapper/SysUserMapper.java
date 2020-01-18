@@ -1,7 +1,9 @@
 package com.study.generator.mapper;
 
 import com.study.generator.model.SysUser;
+
 import java.util.List;
+import java.util.Map;
 
 public interface SysUserMapper {
     /**
@@ -45,4 +47,10 @@ public interface SysUserMapper {
     int updateByPrimaryKey(SysUser record);
 
     List<SysUser> selectAllWithRole();
+
+    List<SysUser> selectAllById();
+
+    SysUser selectOneById(SysUser sysUser);
+
+    List<SysUser> selectByPage(Map<String, Object> map);
 }

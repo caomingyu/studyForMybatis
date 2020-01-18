@@ -18,6 +18,11 @@
     delete from sys_privilege
     where id = #{id,jdbcType=BIGINT}
   </delete>
+  <select id="selectPrivilegeByRid" resultMap="BaseResultMap">
+    select * from sys_privilege sp
+    left join sys_role_privilege srp on  srp.privilege_id=sp.id
+    where srp.role_id=#{id}
+  </select>
   <insert id="insert" parameterType="com.study.generator.model.SysPrivilege">
     <!--
       WARNING - @mbg.generated
