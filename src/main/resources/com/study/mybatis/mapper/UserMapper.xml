@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.mybatis.mapper.UserMapper">
+    <resultMap id="userMap" type="SysUser">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="userEmail" column="user_email"/>
+        <result property="userInfo" column="user_info"/>
+        <result property="headImg" column="head_img" jdbcType="BLOB"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <select id="selectById" resultMap="userMap">
+        select * from study_mybatis.sys_user
+        where id=#{1}
+    </select>
+    <select id="selectAll" resultType="SysUser">
+        select * from study_mybatis.sys_user
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into study_mybatis.sys_user (user_name, user_password, user_emial, user_info, head_img, create_time)
+        values (#{userName},#{userPassword},#{userEmial},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP});
+    </insert>
+    <select id="selectByParam" resultType="SysUser">
+        select * from study_mybatis.sys_user
+        <where>
+            <if test="userName !=null and userName !=''">
+                and user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="userEmail !=null and userEmail != ''">
+                and user_emial =#{userEmail}
+            </if>
+        </where>
+    </select>
+    <select id="selectByIdOrUserName" resultType="SysUser">
+        select * from study_mybatis.sys_user
+        where 1=1
+        <choose>
+            <when test="id!=null">
+                and id=#{id}
+            </when>
+            <when test="userName != null and userName !=''">
+                and user_name=#{userName}
+            </when>
+            <otherwise>
+                and 1=2
+            </otherwise>
+        </choose>
+    </select>
+    <select id="selectByIds" resultType="SysUser">
+        select * from study_mybatis.sys_user
+        where id in 
+        <foreach collection="list" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

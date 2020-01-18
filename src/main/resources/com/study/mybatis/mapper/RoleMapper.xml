@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.mybatis.mapper.RoleMapper">
+    <select id="selectAll" resultType="SysRole">
+       select
+       r.id,
+        r.role_name,
+        r.create_time,
+        u.user_name as "user.userName",
+        u.user_emial as "user.userEmial"
+        from study_mybatis.sys_role r left join study_mybatis.sys_user u
+        on r.create_by=u.id where r.enabled='1'
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="sysRole.id" keyColumn="id">
+        insert into study_mybatis.sys_role (role_name, enabled, create_by, create_time)
+        values (#{sysRole.roleName},#{sysRole.enabled},#{sysRole.createBy},#{sysRole.createTime});
+    </insert>
+</mapper>
